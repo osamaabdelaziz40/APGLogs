@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\APGLogs.Application\APGLogs.Application.csproj" />
+		<ProjectReference Include="..\APGLogs.Domain\APGLogs.Domain.csproj" />
+		<ProjectReference Include="..\APGLogs.Infra.CrossCutting.Identity\APGLogs.Infra.CrossCutting.Identity.csproj" />
+		<ProjectReference Include="..\APGLogs.Infra.Data\APGLogs.Infra.Data.csproj" />
+	</ItemGroup>
+
+</Project>
