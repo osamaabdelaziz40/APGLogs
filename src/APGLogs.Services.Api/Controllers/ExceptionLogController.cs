@@ -16,7 +16,7 @@ using NetDevPack.Identity.Authorization;
 namespace APGLogs.Services.Api.Controllers
 {
     //[Authorize]
-    [Route(ServiceNameExceptionLog.ServiceName)]
+    [Route(ServiceNameExceptionLog.ServiceName)] //Test Commit
     public class ExceptionLogController : ApiController
     {
         private readonly IExceptionLogAppService _exceptionLogAppService;
