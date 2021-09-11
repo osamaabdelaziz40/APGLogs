@@ -12,5 +12,10 @@ namespace APGLogs.DomainHelper.Filter
         public DateTime DateFrom { get; set; }
         public DateTime DateTo { get; set; }
         public string ServiceName { get; set; }
+
+        public Guid TerminalNodeId { get; set; }
+
+        public DateTime DateTime { get; set; }
+
     }
 }

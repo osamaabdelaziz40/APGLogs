@@ -28,7 +28,16 @@ namespace APGLogs.Infra.CrossCutting.IoC
             // Application
             services.AddScoped<ICustomerAppService, CustomerAppService>();
             services.AddScoped<IExceptionLogAppService, ExceptionLogAppService>();
+            services.AddScoped<IExceptionLogTypeAppService, ExceptionLogTypeAppService>();
             services.AddScoped<ICommunicationLogAppService, CommunicationLogAppService>();
+            services.AddScoped<ISMSLogAppService, SMSLogAppService>();
+            services.AddScoped<IPortalSessionAuditAppService, PortalSessionAuditAppService>();
+            services.AddScoped<IPortalSessionAuditActionAppService, PortalSessionAuditActionAppService>();
+            services.AddScoped<IAMSTransactionAuditAppService, AMSTransactionAuditAppService>();
+            services.AddScoped<IAMSBalanceAuditAppService, AMSBalanceAuditAppService>();
+            services.AddScoped<IShadowBalanceAuditAppService, ShadowBalanceAuditAppService>();
+            services.AddScoped<IEmailLogAppService, EmailLogAppService>();
+            services.AddScoped<ICommunicationLogTypeAppService, CommunicationLogTypeAppService>();
 
 
             // Domain - Events
@@ -44,7 +53,16 @@ namespace APGLogs.Infra.CrossCutting.IoC
             // Infra - Data
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IExceptionLogRepository, ExceptionLogRepository>();
+            services.AddScoped<IExceptionLogTypeRepository, ExceptionLogTypeRepository>();
             services.AddScoped<ICommunicationLogRepository, CommunicationLogRepository>();
+            services.AddScoped<ISMSLogRepository, SMSLogRepository>();
+            services.AddScoped<IPortalSessionAuditRepository, PortalSessionAuditRepository>();
+            services.AddScoped<IPortalSessionAuditActionRepository, PortalSessionAuditActionRepository>();
+            services.AddScoped<IAMSTransactionAuditRepository, AMSTransactionAuditRepository>();
+            services.AddScoped<IAMSBalanceAuditRepository, AMSBalanceAuditRepository>();
+            services.AddScoped<IShadowBalanceAuditRepository, ShadowBalanceAuditRepository>();
+            services.AddScoped<IEmailLogRepository, EmailLogRepository>();
+            services.AddScoped<ICommunicationLogTypeRepository, CommunicationLogTypeRepository>();
             services.AddScoped<APGFundamentalContext>();
 
             // Infra - Data EventSourcing

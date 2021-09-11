@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using APGLogs.Application.EventSourcedNormalizers;
 using APGLogs.Application.Interfaces;
@@ -7,6 +8,7 @@ using APGLogs.Application.ViewModels;
 using APGLogs.Constant;
 using APGLogs.DomainHelper.Filter;
 using APGLogs.DomainHelper.Models;
+using APGLogs.DomainHelper.Services;
 using APGLogs.Services.Api.Messages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,14 +18,16 @@ using NetDevPack.Identity.Authorization;
 namespace APGLogs.Services.Api.Controllers
 {
     //[Authorize]
-    [Route(ServiceNameExceptionLog.ServiceName)] //Test Commit
+    [Route(ServiceNameExceptionLog.ServiceName)]
     public class ExceptionLogController : ApiController
     {
         private readonly IExceptionLogAppService _exceptionLogAppService;
+        private readonly IExceptionLogTypeAppService _exceptionLogTypeAppService;
 
-        public ExceptionLogController(IExceptionLogAppService exceptionLogAppService)
+        public ExceptionLogController(IExceptionLogAppService exceptionLogAppService, IExceptionLogTypeAppService exceptionLogTypeAppService)
         {
             _exceptionLogAppService = exceptionLogAppService;
+            _exceptionLogTypeAppService = exceptionLogTypeAppService;
         }
 
         [HttpGet]
@@ -32,7 +36,21 @@ namespace APGLogs.Services.Api.Controllers
         [Route(ServiceNameCommon.GetAll)]
         public async Task<IEnumerable<ExceptionLogViewModel>> Get()
         {
-            return await _exceptionLogAppService.GetAll();
+            try
+            {
+                var res = await _exceptionLogAppService.GetAll();
+                foreach (var item in res)
+                {
+                    item.InnerException = item.InnerException.DecodeBase64();
+                    item.StackTrace = item.StackTrace.DecodeBase64();
+                    item.Message = item.Message.DecodeBase64();
+                }
+                return res;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
         [HttpGet]
@@ -73,10 +91,20 @@ namespace APGLogs.Services.Api.Controllers
         [Route(ServiceNameCommon.Add)]
         public async Task<IActionResult> Post([FromBody] ExceptionLogViewModel exceptionLogViewModel)
         {
+            Guid guidOutput = Guid.NewGuid();
+            bool isValid = Guid.TryParse(exceptionLogViewModel.ExceptionType, out guidOutput);
+
+            var exceptionLogType = !isValid ? null: _exceptionLogTypeAppService.GetById(Guid.Parse(exceptionLogViewModel.ExceptionType));
             if (!ModelState.IsValid)
             {
                 return CustomResponse(ModelState);
+            }else if (exceptionLogType.Result == null)
+            {
+                return CustomResponse(false);
             }
+            exceptionLogViewModel.InnerException = exceptionLogViewModel.InnerException.EncodeBase64();
+            exceptionLogViewModel.StackTrace = exceptionLogViewModel.StackTrace.EncodeBase64();
+            exceptionLogViewModel.Message = exceptionLogViewModel.Message.EncodeBase64();
             await _exceptionLogAppService.Add(exceptionLogViewModel);
             return CustomResponse(true);
         }
@@ -104,12 +132,5 @@ namespace APGLogs.Services.Api.Controllers
             await _exceptionLogAppService.Remove(id);
             return CustomResponse(true);
         }
-
-        //[AllowAnonymous]
-        //[HttpGet("customer-management/history/{id:guid}")]
-        //public async Task<IList<CustomerHistoryData>> History(Guid id)
-        //{
-        //    return await _customerAppService.GetAllHistory(id);
-        //}
     }
 }

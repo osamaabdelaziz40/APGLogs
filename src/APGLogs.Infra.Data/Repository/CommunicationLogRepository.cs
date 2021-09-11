@@ -105,7 +105,43 @@ namespace APGLogs.Infra.Data.Repository
             }
         }
 
+        public async Task<bool> CheckReplayAttach(CommunicationLogFilter filter)
+        {
+            FilterDefinition<CommunicationLog> communicationLogFilter = Builders<CommunicationLog>.Filter.Empty;
+            var terminalNodeIdFieldDefinition = new ExpressionFieldDefinition<CommunicationLog, Guid>(x => x.TerminalNodeId);
+            var dateTimeFieldDefinition = new ExpressionFieldDefinition<CommunicationLog, DateTime>(x => x.RequestDatetime);
 
+            FilterDefinition<CommunicationLog> terminalNodeIdFilter = null;
+            
+            terminalNodeIdFilter = Builders<CommunicationLog>.Filter.Eq(terminalNodeIdFieldDefinition, filter.TerminalNodeId);
+            communicationLogFilter = communicationLogFilter & Builders<CommunicationLog>.Filter.And(terminalNodeIdFilter);
+
+            var dateTime = new DateTime();
+            FilterDefinition<CommunicationLog> dateTimeFilter = null;
+            if (!string.IsNullOrWhiteSpace(filter.DateTime.ToString()) && filter.DateTime > DateTime.MinValue)
+            {
+                filter.DateTime = filter.DateTime.ToLocalTime();
+                var convertedDateTime = new DateTime(filter.DateTime.Year, filter.DateTime.Month, filter.DateTime.Day,
+                    filter.DateTime.Hour, filter.DateTime.Minute, filter.DateTime.Second);
+                dateTime = DateTime.ParseExact(convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture); ;
+                dateTimeFilter = Builders<CommunicationLog>.Filter.Eq<DateTime>(dateTimeFieldDefinition, dateTime);
+                communicationLogFilter = communicationLogFilter & Builders<CommunicationLog>.Filter.And(dateTimeFilter);
+            }
+            var Records = await _communicationLog.Find(communicationLogFilter).ToListAsync();
+           
+            if (Records.Count>0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+            
+        }
+
+
+        
         public Task Add(CommunicationLog communicationLog)
         {
             return _communicationLog.InsertOneAsync(communicationLog);

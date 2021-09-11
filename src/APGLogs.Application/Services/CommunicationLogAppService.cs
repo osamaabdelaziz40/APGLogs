@@ -46,12 +46,19 @@ namespace APGLogs.Application.Services
         public async Task<PaginatedResult<CommunicationLogViewModel>> GetAllPaged(CommunicationLogFilter filter)
    => _mapper.Map<PaginatedResult<CommunicationLogViewModel>>(await _communicationLogRepository.GetPaginatedResultAsync(filter).ConfigureAwait(false));
 
+        public async Task<bool> CheckReplayAttach(CommunicationLogFilter filter)
+        {
+               return await _communicationLogRepository.CheckReplayAttach(filter).ConfigureAwait(false);
+        }
+
+
+
         public async Task<ExportViewModel> GetAllExported(CommunicationLogFilter filter)
         {
             filter.IsExport = true;
             var pagedResult = await _communicationLogRepository.GetPaginatedResultAsync(filter).ConfigureAwait(false);
 
-            var exportedCSV = await _csvManager.Export(pagedResult.Records, "ExportedExceptionLogs");
+            var exportedCSV = await _csvManager.Export(pagedResult.Records, "ExportedCommunicationLogs");
             return _mapper.Map<ExportViewModel>(exportedCSV);
         }
 

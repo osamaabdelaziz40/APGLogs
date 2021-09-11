@@ -7,10 +7,55 @@ namespace APGLogs.Constant
 
         public const string GetByCommunicationLogId = "GetByCommunicationLogId";
     }
+    public static class ServiceNameExceptionLogType
+    {
+        public const string ServiceName = "ExceptionLogType";
+
+    }
 
     public static class ServiceNameCommunicationLog
     {
         public const string ServiceName = "CommunicationLog";
+    }
+    public static class ServiceNameSMSLog
+    {
+        public const string ServiceName = "SMSLog";
+    }
+
+    public static class ServiceNameAMSBalanceAudit
+    {
+        public const string ServiceName = "AMSBalanceAudit";
+    }
+
+    public static class ServiceNameShadowBalanceAudit
+    {
+        public const string ServiceName = "ShadowBalanceAudit";
+    }
+
+
+    public static class ServiceNamePortalSessionAudit
+    {
+        public const string ServiceName = "PortalSessionAudit";
+    }
+
+    public static class ServiceNamePortalSessionAuditAction
+    {
+        public const string ServiceName = "PortalSessionAuditAction";
+    }
+    public static class ServiceNameAMSTransactionAudit
+    {
+        public const string ServiceName = "AMSTransactionAudit";
+    }
+    
+    
+
+    public static class ServiceNameEmailLog
+    {
+        public const string ServiceName = "EmailLog";
+    }
+    public static class ServiceNameCommunicationLogType
+    {
+        public const string ServiceName = "CommunicationLogType";
     }
 
     public static class ServiceNameLookup
@@ -27,5 +72,6 @@ namespace APGLogs.Constant
         public const string GetAll = "GetAll";
         public const string GetAllPaged = "GetAllPaginated";
         public const string GetAllExported = "GetAllExported";
+        public const string CheckReplayAttach = "CheckReplayAttach";
     }
 }

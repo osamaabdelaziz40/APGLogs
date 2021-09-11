@@ -7,6 +7,7 @@ using APGLogs.Application.ViewModels;
 using APGLogs.Constant;
 using APGLogs.DomainHelper.Filter;
 using APGLogs.DomainHelper.Models;
+using APGLogs.DomainHelper.Services;
 using APGLogs.Services.Api.Messages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -32,7 +33,16 @@ namespace APGLogs.Services.Api.Controllers
         [Route(ServiceNameCommon.GetAll)]
         public async Task<IEnumerable<CommunicationLogViewModel>> Get()
         {
-            return await _communicationLogAppService.GetAll();
+            var res = await _communicationLogAppService.GetAll();
+            foreach (var item in res)
+            {
+                item.InternalRequest = item.InternalRequest.DecodeBase64();
+                item.InternalResponse = item.InternalResponse.DecodeBase64();
+                item.ExternalRequest = item.ExternalRequest.DecodeBase64();
+                item.ExternalResponse = item.ExternalResponse.DecodeBase64();
+                item.ServiceName = item.ServiceName.DecodeBase64();
+            }
+            return res;
         }
 
         [HttpGet]
@@ -42,12 +52,26 @@ namespace APGLogs.Services.Api.Controllers
         public async Task<IActionResult> GetAllPaged([FromQuery] CommunicationLogFilter filter)
            => CustomResponse(await _communicationLogAppService.GetAllPaged(filter).ConfigureAwait(false));
 
+
+        [HttpGet]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(GenericSuccessResponse<PaginatedResult<CommunicationLogViewModel>>), StatusCodes.Status200OK)]
+        [Route(ServiceNameCommon.CheckReplayAttach)]
+        public async Task<IActionResult> CheckReplayAttach([FromQuery] CommunicationLogFilter filter)
+        {
+            return CustomResponse(await _communicationLogAppService.CheckReplayAttach(filter).ConfigureAwait(false));
+
+        }
+
+
+
         [HttpGet]
         [AllowAnonymous]
         [ProducesResponseType(typeof(GenericSuccessResponse<ExportViewModel>), StatusCodes.Status200OK)]
         [Route(ServiceNameCommon.GetAllExported)]
         public async Task<IActionResult> Export([FromQuery] CommunicationLogFilter filter)
            => CustomResponse(await _communicationLogAppService.GetAllExported(filter).ConfigureAwait(false));
+
 
         [HttpGet]
         [AllowAnonymous]
@@ -68,6 +92,11 @@ namespace APGLogs.Services.Api.Controllers
             {
                 return CustomResponse(ModelState);
             }
+            CommunicationLogViewModel.InternalRequest = CommunicationLogViewModel.InternalRequest.EncodeBase64();
+            CommunicationLogViewModel.InternalResponse = CommunicationLogViewModel.InternalResponse.EncodeBase64();
+            CommunicationLogViewModel.ExternalRequest = CommunicationLogViewModel.ExternalRequest.EncodeBase64();
+            CommunicationLogViewModel.ExternalResponse = CommunicationLogViewModel.ExternalResponse.EncodeBase64();
+            CommunicationLogViewModel.ServiceName = CommunicationLogViewModel.ServiceName.EncodeBase64();
             await _communicationLogAppService.Add(CommunicationLogViewModel);
             return CustomResponse(true);
         }
@@ -95,12 +124,5 @@ namespace APGLogs.Services.Api.Controllers
             await _communicationLogAppService.Remove(id);
             return CustomResponse(true);
         }
-
-        //[AllowAnonymous]
-        //[HttpGet("customer-management/history/{id:guid}")]
-        //public async Task<IList<CustomerHistoryData>> History(Guid id)
-        //{
-        //    return await _customerAppService.GetAllHistory(id);
-        //}
     }
 }

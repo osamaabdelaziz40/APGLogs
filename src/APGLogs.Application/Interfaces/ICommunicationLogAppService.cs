@@ -14,11 +14,10 @@ namespace APGLogs.Application.Interfaces
         Task<IEnumerable<CommunicationLogViewModel>> GetAll();
         Task<CommunicationLogViewModel> GetById(Guid id);
         Task<PaginatedResult<CommunicationLogViewModel>> GetAllPaged(CommunicationLogFilter filter);
+        Task<bool> CheckReplayAttach(CommunicationLogFilter filter);
         Task<ExportViewModel> GetAllExported(CommunicationLogFilter filter);
         Task Add(CommunicationLogViewModel communicationLogViewModel);
         Task Update(CommunicationLogViewModel communicationLogViewModel);
         Task Remove(Guid id);
-
-        //Task<IList<CustomerHistoryData>> GetAllHistory(Guid id);
     }
 }
