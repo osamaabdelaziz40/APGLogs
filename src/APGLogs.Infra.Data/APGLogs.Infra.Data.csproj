@@ -13,6 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\APGFundamentals.Constant\APGLogs.Constant.csproj" />
 	  <ProjectReference Include="..\APGLogs.DomainHelper\APGLogs.DomainHelper.csproj" />
 	  <ProjectReference Include="..\APGLogs.Domain\APGLogs.Domain.csproj" />
 	  <ProjectReference Include="..\APGLogs.Infra.CrossCutting.Identity\APGLogs.Infra.CrossCutting.Identity.csproj" />

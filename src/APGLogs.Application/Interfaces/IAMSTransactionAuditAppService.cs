@@ -18,6 +18,7 @@ namespace APGLogs.Application.Interfaces
         Task Add(AMSTransactionAuditViewModel AMSTransactionAuditViewModel);
         Task Update(AMSTransactionAuditViewModel AMSTransactionAuditViewModel);
         Task Remove(Guid id);
+        Task RemoveRange(DateTime date);
 
     }
 }

@@ -45,7 +45,7 @@ namespace APGLogs.Application.ViewModels
         public DateTime InternalResponseTime { get; set; }
 
         [DisplayName("MessageTypeId")]
-        public int? MessageTypeId { get; set; }
+        public string MessageTypeId { get; set; }
 
         [DisplayName("MessageFormatId")]
         public int? MessageFormatId { get; set; }

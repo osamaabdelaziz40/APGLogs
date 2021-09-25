@@ -1,4 +1,6 @@
 ﻿using APGLogs.DomainHelper.Attributes;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +16,11 @@ namespace APGLogs.DomainHelper.Filter
         public string ServiceName { get; set; }
 
         public Guid TerminalNodeId { get; set; }
-
+        [Export]
+        [BsonRepresentation(BsonType.DateTime)]
+        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime DateTime { get; set; }
+
 
     }
 }

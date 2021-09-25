@@ -13,8 +13,11 @@ namespace APGLogs.Application.Interfaces
     {
         Task<IEnumerable<PortalSessionAuditViewModel>> GetAll();
         Task<PortalSessionAuditViewModel> GetById(Guid id);
+        Task<PaginatedResult<PortalSessionAuditViewModel>> GetAllPaged(PortalSessionAuditFilter filter);
+
         Task Add(PortalSessionAuditViewModel PortalSessionAuditViewModel);
         Task Update(PortalSessionAuditViewModel PortalSessionAuditViewModel);
         Task Remove(Guid id);
+        Task RemoveRange(DateTime date);
     }
 }

@@ -110,6 +110,23 @@ namespace APGLogs.Infra.Data.Repository
         {
             return _PortalSessionAuditAction.DeleteOneAsync(sub => sub.Id == id.ToString());
         }
+        public Task RemoveRange(DateTime date)
+        {
+            FilterDefinition<PortalSessionAuditAction> PortalSessionAuditActionFilter = Builders<PortalSessionAuditAction>.Filter.Empty;
+            var dateTimeFieldDefinition = new ExpressionFieldDefinition<PortalSessionAuditAction, DateTime>(x => x.ActionDate);
+            var dateFrom = new DateTime();
+            FilterDefinition<PortalSessionAuditAction> dateFromFilter = null;
+            if (!string.IsNullOrWhiteSpace(date.ToString()))
+            {
+                date = date.ToLocalTime();
+                var convertedDateTime = new DateTime(date.Year, date.Month, date.Day,
+                    date.Hour, date.Minute, date.Second);
+                dateFrom = DateTime.ParseExact(convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture); ;
+                dateFromFilter = Builders<PortalSessionAuditAction>.Filter.Lte<DateTime>(dateTimeFieldDefinition, dateFrom);
+                PortalSessionAuditActionFilter = PortalSessionAuditActionFilter & Builders<PortalSessionAuditAction>.Filter.And(dateFromFilter);
+            }
+            return _PortalSessionAuditAction.DeleteManyAsync(PortalSessionAuditActionFilter);
+        }
 
         public void Dispose()
         {

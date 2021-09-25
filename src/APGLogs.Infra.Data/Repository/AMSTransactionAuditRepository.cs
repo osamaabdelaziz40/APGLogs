@@ -109,6 +109,23 @@ namespace APGLogs.Infra.Data.Repository
             return _AMSTransactionAudit.DeleteOneAsync(sub => sub.Id == id.ToString());
         }
 
+        public Task RemoveRange(DateTime date)
+        {
+            FilterDefinition<AMSTransactionAudit> AMSTransactionAuditFilter = Builders<AMSTransactionAudit>.Filter.Empty;
+            var dateTimeFieldDefinition = new ExpressionFieldDefinition<AMSTransactionAudit, DateTime>(x => x.CreationDate);
+            var dateFrom = new DateTime();
+            FilterDefinition<AMSTransactionAudit> dateFromFilter = null;
+            if (!string.IsNullOrWhiteSpace(date.ToString()))
+            {
+                date = date.ToLocalTime();
+                var convertedDateTime = new DateTime(date.Year, date.Month, date.Day,
+                    date.Hour, date.Minute, date.Second);
+                dateFrom = DateTime.ParseExact(convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture); ;
+                dateFromFilter = Builders<AMSTransactionAudit>.Filter.Lte<DateTime>(dateTimeFieldDefinition, dateFrom);
+                AMSTransactionAuditFilter = AMSTransactionAuditFilter & Builders<AMSTransactionAudit>.Filter.And(dateFromFilter);
+            }
+            return _AMSTransactionAudit.DeleteManyAsync(AMSTransactionAuditFilter);
+        }
         public void Dispose()
         {
             //Db.Dispose();

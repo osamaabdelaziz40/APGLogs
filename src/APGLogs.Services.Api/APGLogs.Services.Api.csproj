@@ -7,7 +7,16 @@
     <DockerfileContext>..\..</DockerfileContext>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Tasks\**" />
+    <Content Remove="Tasks\**" />
+    <EmbeddedResource Remove="Tasks\**" />
+    <None Remove="Tasks\**" />
+  </ItemGroup>
+
 	<ItemGroup>
+		<PackageReference Include="Hangfire" Version="1.7.25" />
+		<PackageReference Include="Hangfire.Mongo" Version="0.7.24" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.14" />
 		<PackageReference Include="MongoDB.Driver" Version="2.13.1" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.1" />
@@ -27,6 +36,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\APGLogs.BackgroundJobs\APGLogs.BackgroundJobs.csproj" />
 		<ProjectReference Include="..\APGFundamentals.Constant\APGLogs.Constant.csproj" />
 		<ProjectReference Include="..\APGLogs.Application\APGLogs.Application.csproj" />
 		<ProjectReference Include="..\APGLogs.DomainHelper\APGLogs.DomainHelper.csproj" />

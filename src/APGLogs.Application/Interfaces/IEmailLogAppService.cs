@@ -18,6 +18,7 @@ namespace APGLogs.Application.Interfaces
         Task Add(EmailLogViewModel EmailLogViewModel);
         Task Update(EmailLogViewModel EmailLogViewModel);
         Task Remove(Guid id);
+        Task RemoveRange(DateTime date);
 
     }
 }

@@ -19,5 +19,6 @@ namespace APGLogs.Application.Interfaces
         Task Add(ExceptionLogViewModel exceptionLogViewModel);
         Task Update(ExceptionLogViewModel exceptionLogViewModel);
         Task Remove(Guid id);
+        Task RemoveRange(DateTime date);
     }
 }

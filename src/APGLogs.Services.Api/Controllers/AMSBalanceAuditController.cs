@@ -5,6 +5,7 @@ using APGLogs.Application.EventSourcedNormalizers;
 using APGLogs.Application.Interfaces;
 using APGLogs.Application.ViewModels;
 using APGLogs.Constant;
+using APGLogs.Domain.Interfaces;
 using APGLogs.DomainHelper.Filter;
 using APGLogs.DomainHelper.Models;
 using APGLogs.DomainHelper.Services;
@@ -21,10 +22,12 @@ namespace APGLogs.Services.Api.Controllers
     public class AMSBalanceAuditController : ApiController
     {
         private readonly IAMSBalanceAuditAppService _AMSBalanceAuditAppService;
-
-        public AMSBalanceAuditController(IAMSBalanceAuditAppService AMSBalanceAuditAppService)
+        private readonly IBackgroundClearTaskSettings _BackgroundClearTaskSettings;
+        public AMSBalanceAuditController(IAMSBalanceAuditAppService AMSBalanceAuditAppService , 
+            IBackgroundClearTaskSettings BackgroundClearTaskSettings)
         {
             _AMSBalanceAuditAppService = AMSBalanceAuditAppService;
+            _BackgroundClearTaskSettings = BackgroundClearTaskSettings;
         }
 
         [HttpGet]
@@ -36,7 +39,7 @@ namespace APGLogs.Services.Api.Controllers
             var res = await _AMSBalanceAuditAppService.GetAll();
             foreach (var item in res)
             {
-                item.AuditMessage = item.AuditMessage.DecodeBase64();
+                item.AuditMessage = _BackgroundClearTaskSettings.UseBase64Encoding ? item.AuditMessage.DecodeBase64(): item.AuditMessage;
             }
             return res;
         }
@@ -74,7 +77,7 @@ namespace APGLogs.Services.Api.Controllers
             {
                 return CustomResponse(ModelState);
             }
-            AMSBalanceAuditViewModel.AuditMessage = AMSBalanceAuditViewModel.AuditMessage.EncodeBase64();
+            AMSBalanceAuditViewModel.AuditMessage = _BackgroundClearTaskSettings.UseBase64Encoding?AMSBalanceAuditViewModel.AuditMessage.EncodeBase64(): AMSBalanceAuditViewModel.AuditMessage;
             
             await _AMSBalanceAuditAppService.Add(AMSBalanceAuditViewModel);
             return CustomResponse(true);

@@ -5,6 +5,7 @@ using APGLogs.Application.EventSourcedNormalizers;
 using APGLogs.Application.Interfaces;
 using APGLogs.Application.ViewModels;
 using APGLogs.Constant;
+using APGLogs.Domain.Interfaces;
 using APGLogs.DomainHelper.Filter;
 using APGLogs.DomainHelper.Models;
 using APGLogs.DomainHelper.Services;
@@ -21,10 +22,12 @@ namespace APGLogs.Services.Api.Controllers
     public class EmailLogController : ApiController
     {
         private readonly IEmailLogAppService _EmailLogAppService;
+        private readonly IBackgroundClearTaskSettings _BackgroundClearTaskSettings;
 
-        public EmailLogController(IEmailLogAppService EmailLogAppService)
+        public EmailLogController(IEmailLogAppService EmailLogAppService, IBackgroundClearTaskSettings BackgroundClearTaskSettings)
         {
             _EmailLogAppService = EmailLogAppService;
+            _BackgroundClearTaskSettings = BackgroundClearTaskSettings;
         }
 
         [HttpGet]
@@ -36,8 +39,11 @@ namespace APGLogs.Services.Api.Controllers
             var res = await _EmailLogAppService.GetAll();
             foreach (var item in res)
             {
-                item.Status = item.Status.DecodeBase64();
-                item.ToEmail = item.ToEmail.DecodeBase64();
+                if (_BackgroundClearTaskSettings.UseBase64Encoding)
+                {
+                    item.Status = item.Status.DecodeBase64();
+                    item.ToEmail = item.ToEmail.DecodeBase64();
+                }
             }
             return res;
         }
@@ -75,9 +81,12 @@ namespace APGLogs.Services.Api.Controllers
             {
                 return CustomResponse(ModelState);
             }
-            EmailLogViewModel.Status = EmailLogViewModel.Status.EncodeBase64();
-            EmailLogViewModel.ToEmail = EmailLogViewModel.ToEmail.EncodeBase64();
-            
+            if (_BackgroundClearTaskSettings.UseBase64Encoding)
+            {
+                EmailLogViewModel.Status = EmailLogViewModel.Status.EncodeBase64();
+                EmailLogViewModel.ToEmail = EmailLogViewModel.ToEmail.EncodeBase64();
+            }
+
             await _EmailLogAppService.Add(EmailLogViewModel);
             return CustomResponse(true);
         }

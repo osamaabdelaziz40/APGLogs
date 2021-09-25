@@ -15,5 +15,6 @@ namespace APGLogs.Domain.Interfaces
         Task Add(PortalSessionAuditAction PortalSessionAuditAction);
         Task Update(PortalSessionAuditAction PortalSessionAuditAction);
         Task Remove(Guid id);
+        Task RemoveRange(DateTime date);
     }
 }

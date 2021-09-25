@@ -1,6 +1,8 @@
 ﻿using APGFundamentals.DomainHelper.Services;
 using APGLogs.Application.Interfaces;
 using APGLogs.Application.Services;
+using APGLogs.BackgroundJobs.Interfaces;
+using APGLogs.BackgroundJobs.Services;
 using APGLogs.Domain.Commands;
 using APGLogs.Domain.Core.Events;
 using APGLogs.Domain.Events;
@@ -12,6 +14,9 @@ using APGLogs.Infra.Data.EventSourcing;
 using APGLogs.Infra.Data.Repository;
 using APGLogs.Infra.Data.Repository.EventSourcing;
 using FluentValidation.Results;
+using Hangfire.Mongo;
+using Hangfire.Mongo.Migration.Strategies;
+using Hangfire.Mongo.Migration.Strategies.Backup;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using NetDevPack.Mediator;
@@ -72,6 +77,24 @@ namespace APGLogs.Infra.CrossCutting.IoC
 
             //Services
             services.AddScoped<ICSVManager, CSVManager>();
+
+
+            //Jobs
+            services.AddScoped<ISMSLogJobService, SMSLogJobService>();
+            services.AddScoped<IEmailLogJobService, EmailLogJobService>();
+            services.AddScoped<IExceptionLogJobService, ExceptionLogJobService>();
+            services.AddScoped<ICommunicationLogJobService, CommunicationLogJobService>();
+            services.AddScoped<IAMSTransactionAuditJobService, AMSTransactionAuditJobService>();
+            services.AddScoped<IAMSBalanceAuditJobService, AMSBalanceAuditJobService>();
+            services.AddScoped<IPortalSessionAuditJobService, PortalSessionAuditJobService>();
+            services.AddScoped<IPortalSessionAuditActionJobService, PortalSessionAuditActionJobService>();
+            services.AddScoped<IShadowBalanceAuditJobService, ShadowBalanceAuditJobService>();
+
+
+
+
+
         }
+
     }
 }

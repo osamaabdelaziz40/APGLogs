@@ -5,6 +5,7 @@ using APGLogs.Application.EventSourcedNormalizers;
 using APGLogs.Application.Interfaces;
 using APGLogs.Application.ViewModels;
 using APGLogs.Constant;
+using APGLogs.Domain.Interfaces;
 using APGLogs.DomainHelper.Filter;
 using APGLogs.DomainHelper.Models;
 using APGLogs.DomainHelper.Services;
@@ -21,10 +22,12 @@ namespace APGLogs.Services.Api.Controllers
     public class ShadowBalanceAuditController : ApiController
     {
         private readonly IShadowBalanceAuditAppService _ShadowBalanceAuditAppService;
+        private readonly IBackgroundClearTaskSettings _BackgroundClearTaskSettings;
 
-        public ShadowBalanceAuditController(IShadowBalanceAuditAppService ShadowBalanceAuditAppService)
+        public ShadowBalanceAuditController(IShadowBalanceAuditAppService ShadowBalanceAuditAppService, IBackgroundClearTaskSettings BackgroundClearTaskSettings)
         {
             _ShadowBalanceAuditAppService = ShadowBalanceAuditAppService;
+            _BackgroundClearTaskSettings = BackgroundClearTaskSettings;
         }
 
         [HttpGet]
@@ -36,7 +39,8 @@ namespace APGLogs.Services.Api.Controllers
             var res = await _ShadowBalanceAuditAppService.GetAll();
             foreach (var item in res)
             {
-                item.AuditMessage = item.AuditMessage.DecodeBase64();
+
+                item.AuditMessage = _BackgroundClearTaskSettings.UseBase64Encoding? item.AuditMessage.DecodeBase64(): item.AuditMessage;
             }
             return res;
         }
@@ -74,7 +78,7 @@ namespace APGLogs.Services.Api.Controllers
             {
                 return CustomResponse(ModelState);
             }
-            ShadowBalanceAuditViewModel.AuditMessage = ShadowBalanceAuditViewModel.AuditMessage.EncodeBase64();
+            ShadowBalanceAuditViewModel.AuditMessage = _BackgroundClearTaskSettings.UseBase64Encoding ? ShadowBalanceAuditViewModel.AuditMessage.EncodeBase64(): ShadowBalanceAuditViewModel.AuditMessage;
             
             await _ShadowBalanceAuditAppService.Add(ShadowBalanceAuditViewModel);
             return CustomResponse(true);

@@ -77,7 +77,10 @@ namespace APGLogs.Application.Services
         {
             await _AMSBalanceAuditRepository.Remove(id);
         }
-
+        public async Task RemoveRange(DateTime date)
+        {
+            await _AMSBalanceAuditRepository.RemoveRange(date);
+        }
         public void Dispose()
         {
             GC.SuppressFinalize(this);

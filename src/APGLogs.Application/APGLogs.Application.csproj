@@ -5,6 +5,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\APGFundamentals.Constant\APGLogs.Constant.csproj" />
 		<ProjectReference Include="..\APGLogs.Domain\APGLogs.Domain.csproj" />
 		<ProjectReference Include="..\APGLogs.Infra.Data\APGLogs.Infra.Data.csproj" />
 	</ItemGroup>

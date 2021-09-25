@@ -18,5 +18,6 @@ namespace APGLogs.Application.Interfaces
         Task Add(ShadowBalanceAuditViewModel ShadowBalanceAuditViewModel);
         Task Update(ShadowBalanceAuditViewModel ShadowBalanceAuditViewModel);
         Task Remove(Guid id);
+        Task RemoveRange(DateTime date);
     }
 }

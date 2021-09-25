@@ -18,5 +18,6 @@ namespace APGLogs.Application.Interfaces
         Task Add(SMSLogViewModel SMSLogViewModel);
         Task Update(SMSLogViewModel SMSLogViewModel);
         Task Remove(Guid id);
+        Task RemoveRange(DateTime date);
     }
 }

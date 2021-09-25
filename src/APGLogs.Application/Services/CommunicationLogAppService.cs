@@ -14,6 +14,7 @@ using APGLogs.Domain.Models;
 using APGLogs.DomainHelper.Models;
 using APGLogs.DomainHelper.Filter;
 using APGLogs.DomainHelper.Interfaces;
+using APGLogs.Constant;
 
 namespace APGLogs.Application.Services
 {
@@ -21,6 +22,7 @@ namespace APGLogs.Application.Services
     {
         private readonly IMapper _mapper;
         private readonly ICommunicationLogRepository _communicationLogRepository;
+        private readonly IExceptionLogRepository _exceptionLogRepository;
         private readonly ICSVManager _csvManager;
         private readonly IEventStoreRepository _eventStoreRepository;
         private readonly IMediatorHandler _mediator;
@@ -29,6 +31,7 @@ namespace APGLogs.Application.Services
                                   ICommunicationLogRepository communicationLogRepository,
                                   ICSVManager csvManager,
                                   IMediatorHandler mediator,
+                                  IExceptionLogRepository exceptionLogRepository,
                                   IEventStoreRepository eventStoreRepository)
         {
             _mapper = mapper;
@@ -36,6 +39,7 @@ namespace APGLogs.Application.Services
             _csvManager = csvManager;
             _mediator = mediator;
             _eventStoreRepository = eventStoreRepository;
+            _exceptionLogRepository = exceptionLogRepository;
         }
 
         public async Task<IEnumerable<CommunicationLogViewModel>> GetAll()
@@ -46,9 +50,26 @@ namespace APGLogs.Application.Services
         public async Task<PaginatedResult<CommunicationLogViewModel>> GetAllPaged(CommunicationLogFilter filter)
    => _mapper.Map<PaginatedResult<CommunicationLogViewModel>>(await _communicationLogRepository.GetPaginatedResultAsync(filter).ConfigureAwait(false));
 
-        public async Task<bool> CheckReplayAttach(CommunicationLogFilter filter)
+        public async Task<ApiResponseVM> CheckReplayAttach(CommunicationLogFilter filter)
         {
-               return await _communicationLogRepository.CheckReplayAttach(filter).ConfigureAwait(false);
+            //return 
+
+            var res = await _communicationLogRepository.CheckReplayAttach(filter);//.ConfigureAwait(false);
+            if (res.Code == 300)
+            {
+                var exceptionLog = new ExceptionLog();
+                exceptionLog.Id = Guid.NewGuid().ToString();
+                exceptionLog.Message = ExceptionContant.AttackError_Message+ filter.DateTime.ToString();
+                //exceptionLog.Source = exception.Source;
+                //exceptionLog.StackTrace = exception.StackTrace;
+                exceptionLog.InnerException = ExceptionContant.AttackError_InnerException+res.Data.ToString();
+                exceptionLog.DateTime = DateTime.Now;
+                exceptionLog.CommunicationLogId = res.Data.ToString();
+                exceptionLog.ExceptionType = CommonCostant.APGException;
+                await _exceptionLogRepository.Add(exceptionLog);
+                return res;
+            }
+            return res;
         }
 
 
@@ -85,7 +106,10 @@ namespace APGLogs.Application.Services
         {
             await _communicationLogRepository.Remove(id);
         }
-
+        public async Task RemoveRange(DateTime date)
+        {
+            await _communicationLogRepository.RemoveRange(date);
+        }
         public void Dispose()
         {
             GC.SuppressFinalize(this);

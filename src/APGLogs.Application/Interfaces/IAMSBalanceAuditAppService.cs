@@ -18,5 +18,6 @@ namespace APGLogs.Application.Interfaces
         Task Add(AMSBalanceAuditViewModel AMSBalanceAuditViewModel);
         Task Update(AMSBalanceAuditViewModel AMSBalanceAuditViewModel);
         Task Remove(Guid id);
+        Task RemoveRange(DateTime date);
     }
 }

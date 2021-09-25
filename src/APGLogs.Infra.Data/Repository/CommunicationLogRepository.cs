@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using APGFundamentals.DomainHelper.Services;
+using APGLogs.Constant;
 using APGLogs.Domain.Interfaces;
 using APGLogs.Domain.Models;
 using APGLogs.DomainHelper.Filter;
@@ -15,6 +17,7 @@ namespace APGLogs.Infra.Data.Repository
     public class CommunicationLogRepository : ICommunicationLogRepository
     {
         private readonly IMongoCollection<CommunicationLog> _communicationLog;
+        ApiResponseVM _Result = new ApiResponseVM();
 
         public CommunicationLogRepository(IAPGLogDatabaseSettings settings)
         {
@@ -105,14 +108,12 @@ namespace APGLogs.Infra.Data.Repository
             }
         }
 
-        public async Task<bool> CheckReplayAttach(CommunicationLogFilter filter)
+        public async Task<ApiResponseVM> CheckReplayAttach(CommunicationLogFilter filter)
         {
             FilterDefinition<CommunicationLog> communicationLogFilter = Builders<CommunicationLog>.Filter.Empty;
             var terminalNodeIdFieldDefinition = new ExpressionFieldDefinition<CommunicationLog, Guid>(x => x.TerminalNodeId);
             var dateTimeFieldDefinition = new ExpressionFieldDefinition<CommunicationLog, DateTime>(x => x.RequestDatetime);
-
             FilterDefinition<CommunicationLog> terminalNodeIdFilter = null;
-            
             terminalNodeIdFilter = Builders<CommunicationLog>.Filter.Eq(terminalNodeIdFieldDefinition, filter.TerminalNodeId);
             communicationLogFilter = communicationLogFilter & Builders<CommunicationLog>.Filter.And(terminalNodeIdFilter);
 
@@ -120,30 +121,33 @@ namespace APGLogs.Infra.Data.Repository
             FilterDefinition<CommunicationLog> dateTimeFilter = null;
             if (!string.IsNullOrWhiteSpace(filter.DateTime.ToString()) && filter.DateTime > DateTime.MinValue)
             {
-                filter.DateTime = filter.DateTime.ToLocalTime();
+                //filter.DateTime = filter.DateTime.ToLocalTime();
                 var convertedDateTime = new DateTime(filter.DateTime.Year, filter.DateTime.Month, filter.DateTime.Day,
                     filter.DateTime.Hour, filter.DateTime.Minute, filter.DateTime.Second);
-                dateTime = DateTime.ParseExact(convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture); ;
+                dateTime = DateTime.ParseExact(convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
                 dateTimeFilter = Builders<CommunicationLog>.Filter.Eq<DateTime>(dateTimeFieldDefinition, dateTime);
-                communicationLogFilter = communicationLogFilter & Builders<CommunicationLog>.Filter.And(dateTimeFilter);
             }
             var Records = await _communicationLog.Find(communicationLogFilter).ToListAsync();
-           
-            if (Records.Count>0)
+            if (Records.Count > 0)
             {
-                return true;
+                _Result.Code = 300;
+                _Result.Message = ExceptionContant.SecurityException;
+                _Result.Data = Records.FirstOrDefault().Id;
+                return _Result;
             }
             else
             {
-                return false;
+                _Result.Code = 200;
+                _Result.Message = ExceptionContant.NoExceptions;
+                return _Result;
             }
-            
         }
 
+       
 
-        
         public Task Add(CommunicationLog communicationLog)
         {
+            communicationLog.RequestDatetime = communicationLog.RequestDatetime.ToLocalTime();
             return _communicationLog.InsertOneAsync(communicationLog);
         }
 
@@ -157,6 +161,23 @@ namespace APGLogs.Infra.Data.Repository
             return _communicationLog.DeleteOneAsync(sub => sub.Id == id.ToString());
         }
 
+        public Task RemoveRange(DateTime date)
+        {
+            FilterDefinition<CommunicationLog> CommunicationLogFilter = Builders<CommunicationLog>.Filter.Empty;
+            var dateTimeFieldDefinition = new ExpressionFieldDefinition<CommunicationLog, DateTime>(x => x.RequestDatetime);
+            var dateFrom = new DateTime();
+            FilterDefinition<CommunicationLog> dateFromFilter = null;
+            if (!string.IsNullOrWhiteSpace(date.ToString()))
+            {
+                date = date.ToLocalTime();
+                var convertedDateTime = new DateTime(date.Year, date.Month, date.Day,
+                    date.Hour, date.Minute, date.Second);
+                dateFrom = DateTime.ParseExact(convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture); ;
+                dateFromFilter = Builders<CommunicationLog>.Filter.Lte<DateTime>(dateTimeFieldDefinition, dateFrom);
+                CommunicationLogFilter = CommunicationLogFilter & Builders<CommunicationLog>.Filter.And(dateFromFilter);
+            }
+            return _communicationLog.DeleteManyAsync(CommunicationLogFilter);
+        }
         public void Dispose()
         {
             //Db.Dispose();

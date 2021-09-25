@@ -17,5 +17,6 @@ namespace APGLogs.Domain.Interfaces
         Task Add(ExceptionLog exceptionLog);
         Task Update(ExceptionLog exceptionLog);
         Task Remove(Guid id);
+        Task RemoveRange(DateTime date);
     }
 }

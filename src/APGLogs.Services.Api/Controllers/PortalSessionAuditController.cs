@@ -5,6 +5,7 @@ using APGLogs.Application.EventSourcedNormalizers;
 using APGLogs.Application.Interfaces;
 using APGLogs.Application.ViewModels;
 using APGLogs.Constant;
+using APGLogs.Domain.Interfaces;
 using APGLogs.DomainHelper.Filter;
 using APGLogs.DomainHelper.Models;
 using APGLogs.DomainHelper.Services;
@@ -21,10 +22,12 @@ namespace APGLogs.Services.Api.Controllers
     public class PortalSessionAuditController : ApiController
     {
         private readonly IPortalSessionAuditAppService _PortalSessionAuditAppService;
+        private readonly IBackgroundClearTaskSettings _BackgroundClearTaskSettings;
 
-        public PortalSessionAuditController(IPortalSessionAuditAppService PortalSessionAuditAppService)
+        public PortalSessionAuditController(IPortalSessionAuditAppService PortalSessionAuditAppService, IBackgroundClearTaskSettings BackgroundClearTaskSettings)
         {
             _PortalSessionAuditAppService = PortalSessionAuditAppService;
+            _BackgroundClearTaskSettings = BackgroundClearTaskSettings;
         }
 
         [HttpGet]
@@ -36,8 +39,11 @@ namespace APGLogs.Services.Api.Controllers
             var res = await _PortalSessionAuditAppService.GetAll();
             foreach (var item in res)
             {
-                item.UserName = item.UserName.DecodeBase64();
-                item.IPAddress = item.IPAddress.DecodeBase64();
+                if (_BackgroundClearTaskSettings.UseBase64Encoding)
+                {
+                    item.UserName = item.UserName.DecodeBase64();
+                    item.IPAddress = item.IPAddress.DecodeBase64();
+                } 
             }
             return res;
         }
@@ -61,9 +67,11 @@ namespace APGLogs.Services.Api.Controllers
             {
                 return CustomResponse(ModelState);
             }
-            PortalSessionAuditViewModel.IPAddress = PortalSessionAuditViewModel.IPAddress.EncodeBase64();
-            PortalSessionAuditViewModel.UserName = PortalSessionAuditViewModel.UserName.EncodeBase64();
-            
+            if (_BackgroundClearTaskSettings.UseBase64Encoding)
+            {
+                PortalSessionAuditViewModel.IPAddress = PortalSessionAuditViewModel.IPAddress.EncodeBase64();
+                PortalSessionAuditViewModel.UserName = PortalSessionAuditViewModel.UserName.EncodeBase64();
+            }
             await _PortalSessionAuditAppService.Add(PortalSessionAuditViewModel);
             return CustomResponse(true);
         }

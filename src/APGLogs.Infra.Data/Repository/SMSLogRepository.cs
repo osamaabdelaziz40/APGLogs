@@ -122,6 +122,24 @@ namespace APGLogs.Infra.Data.Repository
             return _SMSLog.DeleteOneAsync(sub => sub.Id == id.ToString());
         }
 
+        public Task RemoveRange(DateTime date)
+        {
+            FilterDefinition<SMSLog> SMSLogFilter = Builders<SMSLog>.Filter.Empty;
+            var dateTimeFieldDefinition = new ExpressionFieldDefinition<SMSLog, DateTime>(x => x.DateTime);
+            var dateFrom = new DateTime();
+            FilterDefinition<SMSLog> dateFromFilter = null;
+            if (!string.IsNullOrWhiteSpace(date.ToString()))
+            {
+                date = date.ToLocalTime();
+                var convertedDateTime = new DateTime(date.Year, date.Month, date.Day,
+                    date.Hour, date.Minute, date.Second);
+                dateFrom = DateTime.ParseExact(convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture); ;
+                dateFromFilter = Builders<SMSLog>.Filter.Lte<DateTime>(dateTimeFieldDefinition, dateFrom);
+                SMSLogFilter = SMSLogFilter & Builders<SMSLog>.Filter.And(dateFromFilter);
+            }
+            return _SMSLog.DeleteManyAsync(SMSLogFilter);
+        }
+
         public void Dispose()
         {
             //Db.Dispose();

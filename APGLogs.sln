@@ -35,9 +35,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APGLogs.Infra.CrossCutting.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6- Helper", "6- Helper", "{B026BBD0-002A-4277-BF9F-CC1E7AEFF271}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APGLogs.Constant", "src\APGFundamentals.Constant\APGLogs.Constant.csproj", "{04B2C0C8-CF72-4BBD-83AC-52AE16CFDCA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APGLogs.Constant", "src\APGFundamentals.Constant\APGLogs.Constant.csproj", "{04B2C0C8-CF72-4BBD-83AC-52AE16CFDCA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APGLogs.DomainHelper", "src\APGLogs.DomainHelper\APGLogs.DomainHelper.csproj", "{704FADEF-B002-47B6-BC41-8917B1601290}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APGLogs.DomainHelper", "src\APGLogs.DomainHelper\APGLogs.DomainHelper.csproj", "{704FADEF-B002-47B6-BC41-8917B1601290}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APGLogs.BackgroundJobs", "APGLogs.BackgroundJobs\APGLogs.BackgroundJobs.csproj", "{D299557B-4DAF-407D-8299-5CD661347E58}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,6 +87,10 @@ Global
 		{704FADEF-B002-47B6-BC41-8917B1601290}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{704FADEF-B002-47B6-BC41-8917B1601290}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{704FADEF-B002-47B6-BC41-8917B1601290}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D299557B-4DAF-407D-8299-5CD661347E58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D299557B-4DAF-407D-8299-5CD661347E58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D299557B-4DAF-407D-8299-5CD661347E58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D299557B-4DAF-407D-8299-5CD661347E58}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -102,6 +108,7 @@ Global
 		{B3000AD2-5EAA-49A2-8FC4-10DF329B15B0} = {DF6C4BDE-F3C5-4E53-A5D5-9D27B2D3E38F}
 		{04B2C0C8-CF72-4BBD-83AC-52AE16CFDCA7} = {B026BBD0-002A-4277-BF9F-CC1E7AEFF271}
 		{704FADEF-B002-47B6-BC41-8917B1601290} = {B026BBD0-002A-4277-BF9F-CC1E7AEFF271}
+		{D299557B-4DAF-407D-8299-5CD661347E58} = {B026BBD0-002A-4277-BF9F-CC1E7AEFF271}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4050E145-6791-440A-A2E5-75B05ACD4AFE}

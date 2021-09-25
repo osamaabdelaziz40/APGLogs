@@ -46,6 +46,8 @@ namespace APGLogs.Application.Services
         public async Task<PaginatedResult<SMSLogViewModel>> GetAllPaged(SMSLogFilter filter)
    => _mapper.Map<PaginatedResult<SMSLogViewModel>>(await _SMSLogRepository.GetPaginatedResultAsync(filter).ConfigureAwait(false));
 
+
+
         public async Task<ExportViewModel> GetAllExported(SMSLogFilter filter)
         {
             filter.IsExport = true;
@@ -77,6 +79,10 @@ namespace APGLogs.Application.Services
         public async Task Remove(Guid id)
         {
             await _SMSLogRepository.Remove(id);
+        }
+        public async Task RemoveRange(DateTime date)
+        {
+            await _SMSLogRepository.RemoveRange(date);
         }
 
         public void Dispose()

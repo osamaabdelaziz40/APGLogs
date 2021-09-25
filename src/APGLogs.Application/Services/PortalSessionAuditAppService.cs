@@ -43,6 +43,11 @@ namespace APGLogs.Application.Services
             return _mapper.Map<IEnumerable<PortalSessionAuditViewModel>>(await _PortalSessionAuditRepository.GetAll());
         }
 
+        public async Task<PaginatedResult<PortalSessionAuditViewModel>> GetAllPaged(PortalSessionAuditFilter filter)
+  => _mapper.Map<PaginatedResult<PortalSessionAuditViewModel>>(await _PortalSessionAuditRepository.GetPaginatedResultAsync(filter).ConfigureAwait(false));
+
+
+
         public async Task<PortalSessionAuditViewModel> GetById(Guid id)
         {
             return _mapper.Map<PortalSessionAuditViewModel>(await _PortalSessionAuditRepository.GetById(id));
@@ -66,7 +71,10 @@ namespace APGLogs.Application.Services
         {
             await _PortalSessionAuditRepository.Remove(id);
         }
-
+        public async Task RemoveRange(DateTime date)
+        {
+            await _PortalSessionAuditRepository.RemoveRange(date);
+        }
         public void Dispose()
         {
             GC.SuppressFinalize(this);

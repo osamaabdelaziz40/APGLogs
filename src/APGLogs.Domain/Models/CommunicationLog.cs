@@ -42,7 +42,7 @@ namespace APGLogs.Domain.Models
         [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
         public DateTime InternalResponseTime { get; set; }
         [Export]
-        public int? MessageTypeId { get; set; }
+        public string MessageTypeId { get; set; }
         [Export]
         public int? MessageFormatId { get; set; }
 

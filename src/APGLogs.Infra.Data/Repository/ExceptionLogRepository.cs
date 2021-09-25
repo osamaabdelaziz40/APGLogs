@@ -129,6 +129,23 @@ namespace APGLogs.Infra.Data.Repository
             return _exceptionLog.DeleteOneAsync(sub => sub.Id == id.ToString());
         }
 
+        public Task RemoveRange(DateTime date)
+        {
+            FilterDefinition<ExceptionLog> exceptionLogFilter = Builders<ExceptionLog>.Filter.Empty;
+            var dateTimeFieldDefinition = new ExpressionFieldDefinition<ExceptionLog, DateTime>(x => x.DateTime);
+            var dateFrom = new DateTime();
+            FilterDefinition<ExceptionLog> dateFromFilter = null;
+            if (!string.IsNullOrWhiteSpace(date.ToString()))
+            {
+                date = date.ToLocalTime();
+                var convertedDateTime = new DateTime(date.Year, date.Month, date.Day,
+                    date.Hour, date.Minute, date.Second);
+                dateFrom = DateTime.ParseExact(convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture); ;
+                dateFromFilter = Builders<ExceptionLog>.Filter.Lte<DateTime>(dateTimeFieldDefinition, dateFrom);
+                exceptionLogFilter = exceptionLogFilter & Builders<ExceptionLog>.Filter.And(dateFromFilter);
+            }
+            return _exceptionLog.DeleteManyAsync(exceptionLogFilter);
+        }
         public void Dispose()
         {
             //Db.Dispose();

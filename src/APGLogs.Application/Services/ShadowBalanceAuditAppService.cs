@@ -77,7 +77,10 @@ namespace APGLogs.Application.Services
         {
             await _ShadowBalanceAuditRepository.Remove(id);
         }
-
+        public async Task RemoveRange(DateTime date)
+        {
+            await _ShadowBalanceAuditRepository.RemoveRange(date);
+        }
         public void Dispose()
         {
             GC.SuppressFinalize(this);

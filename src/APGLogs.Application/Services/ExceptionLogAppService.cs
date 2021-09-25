@@ -80,7 +80,10 @@ namespace APGLogs.Application.Services
         {
             await _exceptionLogRepository.Remove(id);
         }
-
+        public async Task RemoveRange(DateTime date)
+        {
+            await _exceptionLogRepository.RemoveRange(date);
+        }
         public void Dispose()
         {
             GC.SuppressFinalize(this);

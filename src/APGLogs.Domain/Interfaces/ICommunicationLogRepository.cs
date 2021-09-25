@@ -12,9 +12,10 @@ namespace APGLogs.Domain.Interfaces
         Task<CommunicationLog> GetById(Guid id);
         Task<IEnumerable<CommunicationLog>> GetAll();
         Task<PaginatedResult<CommunicationLog>> GetPaginatedResultAsync(CommunicationLogFilter filter);
-        Task<bool> CheckReplayAttach(CommunicationLogFilter filter);
+        Task<ApiResponseVM> CheckReplayAttach(CommunicationLogFilter filter);
         Task Add(CommunicationLog communicationLog);
         Task Update(CommunicationLog communicationLog);
         Task Remove(Guid id);
+        Task RemoveRange(DateTime date);
     }
 }

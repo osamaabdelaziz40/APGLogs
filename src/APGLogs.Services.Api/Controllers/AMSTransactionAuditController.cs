@@ -5,6 +5,7 @@ using APGLogs.Application.EventSourcedNormalizers;
 using APGLogs.Application.Interfaces;
 using APGLogs.Application.ViewModels;
 using APGLogs.Constant;
+using APGLogs.Domain.Interfaces;
 using APGLogs.DomainHelper.Filter;
 using APGLogs.DomainHelper.Models;
 using APGLogs.DomainHelper.Services;
@@ -21,10 +22,12 @@ namespace APGLogs.Services.Api.Controllers
     public class AMSTransactionAuditController : ApiController
     {
         private readonly IAMSTransactionAuditAppService _AMSTransactionAuditAppService;
-
-        public AMSTransactionAuditController(IAMSTransactionAuditAppService AMSTransactionAuditAppService)
+        private readonly IBackgroundClearTaskSettings _BackgroundClearTaskSettings;
+        
+        public AMSTransactionAuditController(IAMSTransactionAuditAppService AMSTransactionAuditAppService , IBackgroundClearTaskSettings BackgroundClearTaskSettings)
         {
             _AMSTransactionAuditAppService = AMSTransactionAuditAppService;
+            _BackgroundClearTaskSettings = BackgroundClearTaskSettings;
         }
 
         [HttpGet]
@@ -36,7 +39,7 @@ namespace APGLogs.Services.Api.Controllers
             var res = await _AMSTransactionAuditAppService.GetAll();
             foreach (var item in res)
             {
-                item.AuditMessage = item.AuditMessage.DecodeBase64();
+                item.AuditMessage = _BackgroundClearTaskSettings.UseBase64Encoding ? item.AuditMessage.DecodeBase64(): item.AuditMessage;
             }
             return res;
         }
@@ -74,7 +77,7 @@ namespace APGLogs.Services.Api.Controllers
             {
                 return CustomResponse(ModelState);
             }
-            AMSTransactionAuditViewModel.AuditMessage = AMSTransactionAuditViewModel.AuditMessage.EncodeBase64();
+            AMSTransactionAuditViewModel.AuditMessage = _BackgroundClearTaskSettings.UseBase64Encoding ? AMSTransactionAuditViewModel.AuditMessage.EncodeBase64(): AMSTransactionAuditViewModel.AuditMessage;
             
             await _AMSTransactionAuditAppService.Add(AMSTransactionAuditViewModel);
             return CustomResponse(true);

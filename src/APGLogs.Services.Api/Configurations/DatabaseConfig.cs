@@ -24,6 +24,12 @@ namespace APGLogs.Services.Api.Configurations
             services.AddSingleton<IAPGLogDatabaseSettings>(sp =>
                 sp.GetRequiredService<IOptions<APGLogDatabaseSettings>>().Value);
 
+            services.Configure<BackgroundClearTaskSettings>(
+                configuration.GetSection(nameof(BackgroundClearTaskSettings)));
+
+            services.AddSingleton<IBackgroundClearTaskSettings>(sp =>
+                            sp.GetRequiredService<IOptions<BackgroundClearTaskSettings>>().Value);
+
 
             //BsonSerializer.RegisterSerializer(typeof(DateTime),
             //             new DateTimeSerializer(DateTimeKind.Local));
@@ -33,6 +39,7 @@ namespace APGLogs.Services.Api.Configurations
 
             services.AddDbContext<EventStoreSqlContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
         }
     }
 }

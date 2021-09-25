@@ -6,10 +6,12 @@ using APGLogs.Application.EventSourcedNormalizers;
 using APGLogs.Application.Interfaces;
 using APGLogs.Application.ViewModels;
 using APGLogs.Constant;
+using APGLogs.Domain.Interfaces;
 using APGLogs.DomainHelper.Filter;
 using APGLogs.DomainHelper.Models;
 using APGLogs.DomainHelper.Services;
 using APGLogs.Services.Api.Messages;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,11 +25,14 @@ namespace APGLogs.Services.Api.Controllers
     {
         private readonly IExceptionLogAppService _exceptionLogAppService;
         private readonly IExceptionLogTypeAppService _exceptionLogTypeAppService;
+        private readonly IBackgroundClearTaskSettings _BackgroundClearTaskSettings;
 
-        public ExceptionLogController(IExceptionLogAppService exceptionLogAppService, IExceptionLogTypeAppService exceptionLogTypeAppService)
+        public ExceptionLogController(IExceptionLogAppService exceptionLogAppService, 
+            IExceptionLogTypeAppService exceptionLogTypeAppService , IBackgroundClearTaskSettings BackgroundClearTaskSettings)
         {
             _exceptionLogAppService = exceptionLogAppService;
             _exceptionLogTypeAppService = exceptionLogTypeAppService;
+            _BackgroundClearTaskSettings = BackgroundClearTaskSettings;
         }
 
         [HttpGet]
@@ -41,9 +46,12 @@ namespace APGLogs.Services.Api.Controllers
                 var res = await _exceptionLogAppService.GetAll();
                 foreach (var item in res)
                 {
-                    item.InnerException = item.InnerException.DecodeBase64();
-                    item.StackTrace = item.StackTrace.DecodeBase64();
-                    item.Message = item.Message.DecodeBase64();
+                    if (_BackgroundClearTaskSettings.UseBase64Encoding)
+                    {
+                        item.InnerException = item.InnerException.DecodeBase64();
+                        item.StackTrace = item.StackTrace.DecodeBase64();
+                        item.Message = item.Message.DecodeBase64();
+                    }
                 }
                 return res;
             }
@@ -102,9 +110,13 @@ namespace APGLogs.Services.Api.Controllers
             {
                 return CustomResponse(false);
             }
-            exceptionLogViewModel.InnerException = exceptionLogViewModel.InnerException.EncodeBase64();
-            exceptionLogViewModel.StackTrace = exceptionLogViewModel.StackTrace.EncodeBase64();
-            exceptionLogViewModel.Message = exceptionLogViewModel.Message.EncodeBase64();
+            if (_BackgroundClearTaskSettings.UseBase64Encoding)
+            {
+                exceptionLogViewModel.InnerException = exceptionLogViewModel.InnerException.EncodeBase64();
+                exceptionLogViewModel.StackTrace = exceptionLogViewModel.StackTrace.EncodeBase64();
+                exceptionLogViewModel.Message = exceptionLogViewModel.Message.EncodeBase64();
+            }
+            
             await _exceptionLogAppService.Add(exceptionLogViewModel);
             return CustomResponse(true);
         }

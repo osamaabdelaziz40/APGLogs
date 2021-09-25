@@ -15,5 +15,6 @@ namespace APGLogs.Domain.Interfaces
         Task Add(SMSLog SMSLog);
         Task Update(SMSLog SMSLog);
         Task Remove(Guid id);
+        Task RemoveRange(DateTime date);
     }
 }

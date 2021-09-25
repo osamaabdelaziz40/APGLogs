@@ -22,6 +22,10 @@ namespace APGLogs.Application.ViewModels
 
         [DisplayName("UserId")]
         public Guid UserId { get; set; }
+
+        [Required(ErrorMessage = "The DateTime is Required")]
+        [DisplayName("DateTime")]
+        public DateTime DateTime { get; set; }
     }
 }
 

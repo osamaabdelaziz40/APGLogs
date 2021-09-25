@@ -15,5 +15,6 @@ namespace APGLogs.Domain.Interfaces
         Task Add(AMSBalanceAudit AMSBalanceAudit);
         Task Update(AMSBalanceAudit AMSBalanceAudit);
         Task Remove(Guid id);
+        Task RemoveRange(DateTime date);
     }
 }

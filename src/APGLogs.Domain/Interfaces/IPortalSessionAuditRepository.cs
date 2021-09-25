@@ -11,8 +11,11 @@ namespace APGLogs.Domain.Interfaces
     {
         Task<PortalSessionAudit> GetById(Guid id);
         Task<IEnumerable<PortalSessionAudit>> GetAll();
+        Task<PaginatedResult<PortalSessionAudit>> GetPaginatedResultAsync(PortalSessionAuditFilter filter);
+
         Task Add(PortalSessionAudit PortalSessionAudit);
         Task Update(PortalSessionAudit PortalSessionAudit);
         Task Remove(Guid id);
+        Task RemoveRange(DateTime date);
     }
 }

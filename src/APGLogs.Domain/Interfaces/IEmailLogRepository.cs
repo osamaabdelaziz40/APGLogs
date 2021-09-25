@@ -15,5 +15,6 @@ namespace APGLogs.Domain.Interfaces
         Task Add(EmailLog EmailLog);
         Task Update(EmailLog EmailLog);
         Task Remove(Guid id);
+        Task RemoveRange(DateTime date);
     }
 }

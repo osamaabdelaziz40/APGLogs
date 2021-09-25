@@ -5,6 +5,7 @@ using APGLogs.Application.EventSourcedNormalizers;
 using APGLogs.Application.Interfaces;
 using APGLogs.Application.ViewModels;
 using APGLogs.Constant;
+using APGLogs.Domain.Interfaces;
 using APGLogs.DomainHelper.Filter;
 using APGLogs.DomainHelper.Models;
 using APGLogs.DomainHelper.Services;
@@ -21,10 +22,15 @@ namespace APGLogs.Services.Api.Controllers
     public class CommunicationLogController : ApiController
     {
         private readonly ICommunicationLogAppService _communicationLogAppService;
+        private readonly ICommunicationLogTypeAppService _communicationLogTypeAppService;
+        private readonly IBackgroundClearTaskSettings _BackgroundClearTaskSettings;
 
-        public CommunicationLogController(ICommunicationLogAppService communicationLogAppService)
+        public CommunicationLogController(ICommunicationLogAppService communicationLogAppService, 
+            IBackgroundClearTaskSettings BackgroundClearTaskSettings, ICommunicationLogTypeAppService communicationLogTypeAppService)
         {
             _communicationLogAppService = communicationLogAppService;
+            _BackgroundClearTaskSettings = BackgroundClearTaskSettings;
+            _communicationLogTypeAppService = communicationLogTypeAppService;
         }
 
         [HttpGet]
@@ -36,11 +42,14 @@ namespace APGLogs.Services.Api.Controllers
             var res = await _communicationLogAppService.GetAll();
             foreach (var item in res)
             {
-                item.InternalRequest = item.InternalRequest.DecodeBase64();
-                item.InternalResponse = item.InternalResponse.DecodeBase64();
-                item.ExternalRequest = item.ExternalRequest.DecodeBase64();
-                item.ExternalResponse = item.ExternalResponse.DecodeBase64();
-                item.ServiceName = item.ServiceName.DecodeBase64();
+                if (_BackgroundClearTaskSettings.UseBase64Encoding)
+                {
+                    item.InternalRequest = item.InternalRequest.DecodeBase64();
+                    item.InternalResponse = item.InternalResponse.DecodeBase64();
+                    item.ExternalRequest = item.ExternalRequest.DecodeBase64();
+                    item.ExternalResponse = item.ExternalResponse.DecodeBase64();
+                    item.ServiceName = item.ServiceName.DecodeBase64();
+                }
             }
             return res;
         }
@@ -88,15 +97,27 @@ namespace APGLogs.Services.Api.Controllers
         [Route(ServiceNameCommon.Add)]
         public async Task<IActionResult> Post([FromBody] CommunicationLogViewModel CommunicationLogViewModel)
         {
+            Guid guidOutput = Guid.NewGuid();
+            bool isValid = Guid.TryParse(CommunicationLogViewModel.MessageTypeId, out guidOutput);
+
+            var communicationLogType = !isValid ? null : _communicationLogTypeAppService.GetById(Guid.Parse(CommunicationLogViewModel.MessageTypeId));
             if (!ModelState.IsValid)
             {
                 return CustomResponse(ModelState);
             }
-            CommunicationLogViewModel.InternalRequest = CommunicationLogViewModel.InternalRequest.EncodeBase64();
-            CommunicationLogViewModel.InternalResponse = CommunicationLogViewModel.InternalResponse.EncodeBase64();
-            CommunicationLogViewModel.ExternalRequest = CommunicationLogViewModel.ExternalRequest.EncodeBase64();
-            CommunicationLogViewModel.ExternalResponse = CommunicationLogViewModel.ExternalResponse.EncodeBase64();
-            CommunicationLogViewModel.ServiceName = CommunicationLogViewModel.ServiceName.EncodeBase64();
+            else if (communicationLogType.Result == null)
+            {
+                return CustomResponse(false);
+            }
+            if (_BackgroundClearTaskSettings.UseBase64Encoding)
+            {
+                CommunicationLogViewModel.InternalRequest = CommunicationLogViewModel.InternalRequest.EncodeBase64();
+                CommunicationLogViewModel.InternalResponse = CommunicationLogViewModel.InternalResponse.EncodeBase64();
+                CommunicationLogViewModel.ExternalRequest = CommunicationLogViewModel.ExternalRequest.EncodeBase64();
+                CommunicationLogViewModel.ExternalResponse = CommunicationLogViewModel.ExternalResponse.EncodeBase64();
+                CommunicationLogViewModel.ServiceName = CommunicationLogViewModel.ServiceName.EncodeBase64();
+            }
+            
             await _communicationLogAppService.Add(CommunicationLogViewModel);
             return CustomResponse(true);
         }

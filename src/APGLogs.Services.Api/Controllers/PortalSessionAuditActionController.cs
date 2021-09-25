@@ -5,6 +5,7 @@ using APGLogs.Application.EventSourcedNormalizers;
 using APGLogs.Application.Interfaces;
 using APGLogs.Application.ViewModels;
 using APGLogs.Constant;
+using APGLogs.Domain.Interfaces;
 using APGLogs.DomainHelper.Filter;
 using APGLogs.DomainHelper.Models;
 using APGLogs.DomainHelper.Services;
@@ -21,10 +22,13 @@ namespace APGLogs.Services.Api.Controllers
     public class PortalSessionAuditActionController : ApiController
     {
         private readonly IPortalSessionAuditActionAppService _PortalSessionAuditActionAppService;
+        private readonly IBackgroundClearTaskSettings _BackgroundClearTaskSettings;
 
-        public PortalSessionAuditActionController(IPortalSessionAuditActionAppService PortalSessionAuditActionAppService)
+        public PortalSessionAuditActionController(IPortalSessionAuditActionAppService PortalSessionAuditActionAppService, 
+            IExceptionLogTypeAppService exceptionLogTypeAppService, IBackgroundClearTaskSettings BackgroundClearTaskSettings)
         {
             _PortalSessionAuditActionAppService = PortalSessionAuditActionAppService;
+            _BackgroundClearTaskSettings = BackgroundClearTaskSettings;
         }
 
         [HttpGet]
@@ -36,8 +40,12 @@ namespace APGLogs.Services.Api.Controllers
             var res = await _PortalSessionAuditActionAppService.GetAll();
             foreach (var item in res)
             {
-                item.ActionName = item.ActionName.DecodeBase64();
-                item.ActionPath = item.ActionPath.DecodeBase64();
+                if (_BackgroundClearTaskSettings.UseBase64Encoding)
+                {
+                    item.ActionName = item.ActionName.DecodeBase64();
+                    item.ActionPath = item.ActionPath.DecodeBase64();
+                }
+                
             }
             return res;
         }
@@ -75,9 +83,12 @@ namespace APGLogs.Services.Api.Controllers
             {
                 return CustomResponse(ModelState);
             }
-            PortalSessionAuditActionViewModel.ActionName = PortalSessionAuditActionViewModel.ActionName.EncodeBase64();
-            PortalSessionAuditActionViewModel.ActionPath = PortalSessionAuditActionViewModel.ActionPath.EncodeBase64();
-            
+            if (_BackgroundClearTaskSettings.UseBase64Encoding)
+            {
+                PortalSessionAuditActionViewModel.ActionName = PortalSessionAuditActionViewModel.ActionName.EncodeBase64();
+                PortalSessionAuditActionViewModel.ActionPath = PortalSessionAuditActionViewModel.ActionPath.EncodeBase64();
+            }
+
             await _PortalSessionAuditActionAppService.Add(PortalSessionAuditActionViewModel);
             return CustomResponse(true);
         }

@@ -78,7 +78,10 @@ namespace APGLogs.Application.Services
         {
             await _EmailLogRepository.Remove(id);
         }
-
+        public async Task RemoveRange(DateTime date)
+        {
+            await _EmailLogRepository.RemoveRange(date);
+        }
         public void Dispose()
         {
             GC.SuppressFinalize(this);

@@ -14,5 +14,6 @@ namespace APGLogs.Services.Api.Configurations
 
             NativeInjectorBootStrapper.RegisterServices(services);
         }
+       
     }
 }

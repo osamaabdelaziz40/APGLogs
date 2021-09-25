@@ -5,6 +5,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Hangfire.Mongo" Version="0.7.24" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\APGLogs.BackgroundJobs\APGLogs.BackgroundJobs.csproj" />
 		<ProjectReference Include="..\APGLogs.Application\APGLogs.Application.csproj" />
 		<ProjectReference Include="..\APGLogs.Domain\APGLogs.Domain.csproj" />
 		<ProjectReference Include="..\APGLogs.Infra.CrossCutting.Identity\APGLogs.Infra.CrossCutting.Identity.csproj" />

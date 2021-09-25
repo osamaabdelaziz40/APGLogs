@@ -5,6 +5,7 @@ using APGLogs.Application.EventSourcedNormalizers;
 using APGLogs.Application.Interfaces;
 using APGLogs.Application.ViewModels;
 using APGLogs.Constant;
+using APGLogs.Domain.Interfaces;
 using APGLogs.DomainHelper.Filter;
 using APGLogs.DomainHelper.Models;
 using APGLogs.DomainHelper.Services;
@@ -21,10 +22,12 @@ namespace APGLogs.Services.Api.Controllers
     public class SMSLogController : ApiController
     {
         private readonly ISMSLogAppService _SMSLogAppService;
+        private readonly IBackgroundClearTaskSettings _BackgroundClearTaskSettings;
 
-        public SMSLogController(ISMSLogAppService SMSLogAppService)
+        public SMSLogController(ISMSLogAppService SMSLogAppService, IBackgroundClearTaskSettings BackgroundClearTaskSettings)
         {
             _SMSLogAppService = SMSLogAppService;
+            _BackgroundClearTaskSettings = BackgroundClearTaskSettings;
         }
 
         [HttpGet]
@@ -36,8 +39,11 @@ namespace APGLogs.Services.Api.Controllers
             var res = await _SMSLogAppService.GetAll();
             foreach (var item in res)
             {
-                item.Status = item.Status.DecodeBase64();
-                item.SMS = item.SMS.DecodeBase64();
+                if (_BackgroundClearTaskSettings.UseBase64Encoding)
+                {
+                    item.Status = item.Status.DecodeBase64();
+                    item.SMS = item.SMS.DecodeBase64();
+                }
             }
             return res;
         }
@@ -75,9 +81,11 @@ namespace APGLogs.Services.Api.Controllers
             {
                 return CustomResponse(ModelState);
             }
-            SMSLogViewModel.Status = SMSLogViewModel.Status.EncodeBase64();
-            SMSLogViewModel.SMS = SMSLogViewModel.SMS.EncodeBase64();
-            
+            if (_BackgroundClearTaskSettings.UseBase64Encoding)
+            {
+                SMSLogViewModel.Status = SMSLogViewModel.Status.EncodeBase64();
+                SMSLogViewModel.SMS = SMSLogViewModel.SMS.EncodeBase64();
+            }
             await _SMSLogAppService.Add(SMSLogViewModel);
             return CustomResponse(true);
         }

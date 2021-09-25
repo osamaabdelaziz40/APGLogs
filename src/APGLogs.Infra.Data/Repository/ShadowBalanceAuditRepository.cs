@@ -120,6 +120,23 @@ namespace APGLogs.Infra.Data.Repository
         {
             return _ShadowBalanceAudit.DeleteOneAsync(sub => sub.Id == id.ToString());
         }
+        public Task RemoveRange(DateTime date)
+        {
+            FilterDefinition<ShadowBalanceAudit> ShadowBalanceAuditFilter = Builders<ShadowBalanceAudit>.Filter.Empty;
+            var dateTimeFieldDefinition = new ExpressionFieldDefinition<ShadowBalanceAudit, DateTime>(x => x.CreationDate);
+            var dateFrom = new DateTime();
+            FilterDefinition<ShadowBalanceAudit> dateFromFilter = null;
+            if (!string.IsNullOrWhiteSpace(date.ToString()))
+            {
+                date = date.ToLocalTime();
+                var convertedDateTime = new DateTime(date.Year, date.Month, date.Day,
+                    date.Hour, date.Minute, date.Second);
+                dateFrom = DateTime.ParseExact(convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture); ;
+                dateFromFilter = Builders<ShadowBalanceAudit>.Filter.Lte<DateTime>(dateTimeFieldDefinition, dateFrom);
+                ShadowBalanceAuditFilter = ShadowBalanceAuditFilter & Builders<ShadowBalanceAudit>.Filter.And(dateFromFilter);
+            }
+            return _ShadowBalanceAudit.DeleteManyAsync(ShadowBalanceAuditFilter);
+        }
 
         public void Dispose()
         {

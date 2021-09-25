@@ -118,6 +118,23 @@ namespace APGLogs.Infra.Data.Repository
             return _AMSBalanceAudit.DeleteOneAsync(sub => sub.Id == id.ToString());
         }
 
+        public Task RemoveRange(DateTime date)
+        {
+            FilterDefinition<AMSBalanceAudit> AMSBalanceAuditFilter = Builders<AMSBalanceAudit>.Filter.Empty;
+            var dateTimeFieldDefinition = new ExpressionFieldDefinition<AMSBalanceAudit, DateTime>(x => x.CreationDate);
+            var dateFrom = new DateTime();
+            FilterDefinition<AMSBalanceAudit> dateFromFilter = null;
+            if (!string.IsNullOrWhiteSpace(date.ToString()))
+            {
+                date = date.ToLocalTime();
+                var convertedDateTime = new DateTime(date.Year, date.Month, date.Day,
+                    date.Hour, date.Minute, date.Second);
+                dateFrom = DateTime.ParseExact(convertedDateTime.ToString("yyyy-MM-dd HH:mm:ss"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture); ;
+                dateFromFilter = Builders<AMSBalanceAudit>.Filter.Lte<DateTime>(dateTimeFieldDefinition, dateFrom);
+                AMSBalanceAuditFilter = AMSBalanceAuditFilter & Builders<AMSBalanceAudit>.Filter.And(dateFromFilter);
+            }
+            return _AMSBalanceAudit.DeleteManyAsync(AMSBalanceAuditFilter);
+        }
         public void Dispose()
         {
             //Db.Dispose();

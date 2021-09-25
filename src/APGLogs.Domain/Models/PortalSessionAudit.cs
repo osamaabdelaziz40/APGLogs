@@ -23,5 +23,10 @@ namespace APGLogs.Domain.Models
         [Export]
         public Guid UserId { get; set; }
 
+        [Export]
+        [BsonRepresentation(BsonType.DateTime)]
+        [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
+        public DateTime DateTime { get; set; }
+
     }
 }
